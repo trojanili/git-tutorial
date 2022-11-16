@@ -1,9 +1,18 @@
+LANG = "EN"
+
 def hello_world(lang):
     if lang == "NL":
-        print("Hallo wereld!")
+        return "Hallo wereld!"
     elif lang == "FR":
-        print("Bonjour le monde!")
+        return "Bonjour le monde!"
     else:
-        print("Hello world!")
+        return "Hello world!"
 
-hello_world("EN")
+def test():
+    assert hello_world("NL") == "Hallo wereld!", "Test failed"
+
+def main():
+    print(hello_world(LANG))
+
+#test()
+main()
