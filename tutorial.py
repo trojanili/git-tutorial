@@ -176,40 +176,7 @@ def ex0():
     print("Welkom! In deze tutorial gaan we leren hoe we Git kunnen gebruiken om met meerdere mensen samen te werken. Het eerste dat we ons aan willen leren, is om regelmatig werk van GitHub naar je eigen systeem te synchroniseren. Laten we dit meteen doen, misschien heeft iemand inmiddels iets veranderd. Gebruik hiervoor het commando `git fetch`.")
     put_state(1)
 
-def test():
-    state = get_state()
-    print("DEBUG", "test", state)
-    put_state(state + 1)
-    state = get_state()
-    print("DEBUG", "test", state)
-
-    #travel("da1db12")
-
-# TODO Multiple files (project.py, ...), each for one of the cases. ?
-
-github_actions = { "test": lambda: print("Hello from GitHub") }
-#student_exercises = { 0: ex0, 1: ex1, 2: ex2, 3: ex3, 4: ex4, 5: ex5, 6: ex6, 7: ex7 }
 student_exercises = [ ex0, ex1, ex2, ex3, ex4, ex5, ex6, ex7, ex8, ex9 ]
 
-def main():
-    if len(argv) > 1 and argv[1] in github_actions:
-        github_actions[argv[1]]()
-    else:
-        student_exercises[get_state()]()
-
 if __name__ == "__main__":
-    main()
-
-
-
-
-
-
-
-
-    #with Repo(".") as repo:
-    #    print(repo.heads.main)
-#checkpoints = { 1: "da1db12" } # Appropriate commit to travel to for each .state value
-## TODO: these hashes change each time I update the underlying initial commit with the tutorial.py file (don't want this to change by accident) - these should probably use relative refs (HEAD~) or commit messages.
-
-
+    student_exercises[get_state()]()
