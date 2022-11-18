@@ -162,7 +162,7 @@ exercises = { 0: { "text": [Text("Welkom! In deze tutorial gaan we leren hoe we 
              1: { "text": [
                  Heading("Fetch"),
                  Text("Het eerste dat we ons aan willen leren, is om regelmatig werk van GitHub naar je eigen systeem te synchroniseren."),
-                 Text("Laten we dit meteen doen, misschien heeft iemand inmiddels iets veranderd. Gebruik hiervoor het commando `git fetch`."),
+                 Text("Laten we dit meteen doen, misschien heeft iemand inmiddels iets veranderd. Gebruik hiervoor het Git > Fetch menu in PyCharm of het commando `git fetch`."),
                  Image("1_Fetch.png"),
                  ],
                   "done": check_heads(main="Internationalisatie", remote="Test code"),
@@ -171,7 +171,8 @@ exercises = { 0: { "text": [Text("Welkom! In deze tutorial gaan we leren hoe we 
                  Heading("Fast Forward"),
                  Text("Zo te zien heeft iemand anders (of misschien wel jijzelf, vanuit de browser of een andere computer) een commit gemaakt die nieuwer is dan de huidige versie."),
                  Image("2_FFBefore.png"),
-                 Text("Gebruik `git merge origin/main --ff-only` om de veranderingen te integreren."),
+                 Text("Klik rechts op de binnengehaalde commit in PyCharm, en Merge de commit in je main branch."),
+                 Text("Alternatief in de command line: gebruik `git merge origin/main --ff-only` om de veranderingen te integreren."),
                  Image("2_FastForward.png")
                  ],
                   "done": check_heads(main="Test code", remote="Test code"),
@@ -180,7 +181,7 @@ exercises = { 0: { "text": [Text("Welkom! In deze tutorial gaan we leren hoe we 
                  Text("Goed gedaan! Dit ging gelukkig vrij pijnloos, omdat we de nieuwe code hebben binnengehaald voordat we zelf zijn begonnen."),
                  Image("3_FFAfter.png"),
                  Text("Als we dat niet hadden gedaan, dan hadden we misschien twee verschillende versies gehad die we hadden moeten samenvoegen."),
-                 Text("We gaan even een stap terug in de tijd - voordat we de `git fetch` deden.")
+                 Text("We gaan even een stap terug in de tijd - voordat we de Fetch deden.")
                  ],
                   "done": check_heads(main="Internationalisatie", remote="Internationalisatie"),
                   "post": rewind
@@ -190,16 +191,18 @@ exercises = { 0: { "text": [Text("Welkom! In deze tutorial gaan we leren hoe we 
                  Text("Nu maken we eerst een eigen aanpassing, zonder eerst de remote changes binnen te halen."),
                  Text("We maken een nieuw bestand, `nieuw.py`, met de volgende inhoud:"),
                  Code(nieuw),
-                 Text("Add en commit dit bestand (`git add nieuw.py`, `git commit -m \"Message\"`).")
+                 Text("Add en commit dit bestand:"),
+                 Image("4_CommitWindow.png"),
+                 Text("(Command Line: `git add nieuw.py`, `git commit -m \"Message\"`).")
                  ],
                   "done": check_file("nieuw.py", nieuw),
                  },
              5: { "text": [
-                 Text("Tof! We hebben onze nieuwe code veiliggesteld, nu nog naar GitHub doorzetten. Maar dan... Als we nu `git push` proberen gaat het mis :-/"),
+                 Text("Tof! We hebben onze nieuwe code veiliggesteld, nu nog naar GitHub doorzetten. Maar dan... Als we nu proberen te Pushen gaat het mis :-/"),
                  Image("5_BasicMergeError.png"),
-                 Text("Als we `git fetch` doen zien we dat we twee parallelle lijnen hebben gemaakt. Oeps. Geeft niet, kan gebeuren. Dus, hoe verder?"),
-                 Text("Helaas, `git merge --ff-only` doet het niet. Dit keer kunnen we niet gewoon doorspoelen, maar zullen we de veranderingen moeten samenvoegen."),
-                 Text("Dit kan met `git merge origin/main`."),
+                 Text("Als we een Fetch doen zien we dat we twee parallelle lijnen hebben gemaakt. Oeps. Geeft niet, kan gebeuren. Dus, hoe verder?"),
+                 Text("Helaas, de fast forward doet het niet. Dit keer kunnen we niet gewoon doorspoelen, maar zullen we de veranderingen moeten samenvoegen."),
+                 Text("Dit kan met het Merge menu item, of het commando `git merge origin/main`."),
                  Sidenote("Bij het mergen wordt een nieuwe commit gemaakt. Je krijgt de mogelijkheid om hier een message voor te schrijven, maar in dit geval moeten we gewoon de standaard-tekst aanhouden.")
                  ],
                   "done": check_heads(main="Merge remote-tracking branch"),
@@ -216,13 +219,14 @@ exercises = { 0: { "text": [Text("Welkom! In deze tutorial gaan we leren hoe we 
                  Heading("Manual Merging"),
                  Text("We maken wederom wat aanpassingen, maar nu dwars door het bestand `project.py` heen. Open het bestand, en pas het als volgt aan:"),
                  Code(aangepast),
-                 Text("Wederom doen we een `git add` en `git commit` voordat we verder kunnen.")
+                 Text("Wederom doen we een add en commit voordat we verder kunnen.")
                  ],
                   "done": check_file("project.py", aangepast),
                  },
              8: { "text": [
                  Text("Cool. Laten we kijken wat er nu gebeurt. Je kan proberen te pushen, maar ook nu weer krijgen we de opdracht om eerst de remote changes te mergen. Sure."),
-                 Text("`git fetch`, geen verrassingen, maar dan... `git merge`, kan het niet meer voor ons oplossen."), Text("We moeten een handmatige merge doen, waarbij we (in PyCharm) de beide versies aan twee kanten hebben met een compromis die we in het midden moeten samenstellen."),
+                 Text("Fetch, geen verrassingen, maar dan... Merge, kan het niet meer voor ons oplossen."),
+                 Text("We moeten een handmatige merge doen, waarbij we (in PyCharm) de beide versies aan twee kanten hebben met een compromis die we in het midden moeten samenstellen."),
                  Image("8_Conflict1.png", "8_Conflict2.png"),
                  Text("Als dat gelukt is kunnen we de gemergde file opnieuwe met `git add` toevoegen, een merge commit maken (gebruik wederom de standaard naam voor nu), en dan pas mogen we pushen.")
                  ],
@@ -300,6 +304,8 @@ def exercise(n):
 def debug(n, stop=12):
     for line in exercises[n]["text"]:
         line.print()
+
+    print()
 
     layout = [t.show() for t in exercises[n]["text"]]
     layout += [[sg.Button("Klaar?")]]
