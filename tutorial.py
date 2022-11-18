@@ -1,22 +1,5 @@
 #!/bin/python
 
-GUI = True
-
-# TODO setup branch with README (docent?)
-# TODO PySimpleGUI?
-#  - Screenshots
-#  - Text update
-#  - Appropriate memes
-# TODO Part 2
-#  - Shared repo
-#  - Iedereen een branch
-#  - Git lead begint als spelleider
-#  - Iedereen maakt eigen branch, edit 'vragen.txt', push naar eigen branch
-#  - Spelleider haalt alle branches op, merget naar main en zet antwoorden erij
-#  - 20 questions
-#  - README.md
-# TODO Test op Windows / PyCharm - Git lib aanwezig?
-
 from git import Repo
 from sys import argv
 import PySimpleGUI as sg
@@ -33,6 +16,13 @@ class Image:
     def show(self):
         return [sg.Image("images/" + p) for p in self.path]
 
+class Heading(str):
+    def print(self):
+        print("#", self)
+
+    def show(self):
+        return [sg.Text(self, font=("Any 16 bold"))]
+
 class Text(str):
     def print(self):
         print(self)
@@ -40,19 +30,36 @@ class Text(str):
     def show(self):
         return [sg.Text(self, font=("Any 12"))]
 
+class Sidenote(str):
+    def print(self):
+        print(self)
+
+    def show(self):
+        return [sg.Text(self, font=("Any 9 italic"))]
+
 class Code(str):
     def print(self):
         print(self)
 
     def show(self):
         return [[sg.Text(self, font=("Courier 12"))],
-                [sg.Text("De code is ook in de output te vinden, om makkelijker te copy-pasten.", font=("Any 9 italic"))]]
+                [Sidenote("De code is ook in de output te vinden, om makkelijker te copy-pasten.").show()]]
+
+def reset(): # TODO
+    # fetch
+    # delete branches
+    # hard reset main to origin/main
+    put_state(0)
+    exit(0)
+
 
 def get_state():
     try:
         with open(".state", "r") as file:
             state = file.read()
             print("DEBUG", "get_state", state)
+            if state.strip().lower == "reset":
+                reset()
             if state.strip().isnumeric():
                 return int(state.strip())
             else:
@@ -152,43 +159,119 @@ exercises = { 0: { "text": [Text("Welkom! In deze tutorial gaan we leren hoe we 
                    "done": check_heads(main="Internationalisatie", remote="Internationalisatie"),
                    "post": rewind
                  },
-             1: { "text": [Text("Het eerste dat we ons aan willen leren, is om regelmatig werk van GitHub naar je eigen systeem te synchroniseren. Laten we dit meteen doen, misschien heeft iemand inmiddels iets veranderd. Gebruik hiervoor het commando `git fetch`.")],
+             1: { "text": [
+                 Heading("Fetch"),
+                 Text("Het eerste dat we ons aan willen leren, is om regelmatig werk van GitHub naar je eigen systeem te synchroniseren."),
+                 Text("Laten we dit meteen doen, misschien heeft iemand inmiddels iets veranderd. Gebruik hiervoor het commando `git fetch`."),
+                 Image("1_Fetch.png"),
+                 ],
                   "done": check_heads(main="Internationalisatie", remote="Test code"),
                  },
-             2: { "text": [Text("Zo te zien heeft iemand anders (of misschien wel jijzelf, vanuit de browser of een andere computer) een commit gemaakt die nieuwer is dan de huidige versie. Gebruik `git merge origin/main --ff-only` om de veranderingen te integreren."), Image("2_FFBefore.png")],
+             2: { "text": [
+                 Heading("Fast Forward"),
+                 Text("Zo te zien heeft iemand anders (of misschien wel jijzelf, vanuit de browser of een andere computer) een commit gemaakt die nieuwer is dan de huidige versie."),
+                 Image("2_FFBefore.png"),
+                 Text("Gebruik `git merge origin/main --ff-only` om de veranderingen te integreren."),
+                 Image("2_FastForward.png")
+                 ],
                   "done": check_heads(main="Test code", remote="Test code"),
                  },
-             3: { "text": [Text("Goed gedaan! Dit ging gelukkig vrij pijnloos, omdat we de nieuwe code hebben binnengehaald voordat we zelf zijn begonnen. Als we dat niet hadden gedaan, dan hadden we misschien twee verschillende versies gehad die we hadden moeten samenvoegen."), Image("3_FFAfter.png"), Text("We gaan even een stap terug in de tijd - voordat we de `git fetch` deden.")],
+             3: { "text": [
+                 Text("Goed gedaan! Dit ging gelukkig vrij pijnloos, omdat we de nieuwe code hebben binnengehaald voordat we zelf zijn begonnen."),
+                 Image("3_FFAfter.png"),
+                 Text("Als we dat niet hadden gedaan, dan hadden we misschien twee verschillende versies gehad die we hadden moeten samenvoegen."),
+                 Text("We gaan even een stap terug in de tijd - voordat we de `git fetch` deden.")
+                 ],
                   "done": check_heads(main="Internationalisatie", remote="Internationalisatie"),
                   "post": rewind
                  },
-             4: { "text": [Text("Nu maken we eerst een eigen aanpassing, zonder eerst de remote changes binnen te halen. We maken een nieuw bestand, `nieuw.py`, met de volgende inhoud:"), Code(nieuw), Text("Add en commit dit bestand (`git add nieuw.py`, `git commit -m \"Message\"`).")],
+             4: { "text": [
+                 Heading("Automerge"),
+                 Text("Nu maken we eerst een eigen aanpassing, zonder eerst de remote changes binnen te halen."),
+                 Text("We maken een nieuw bestand, `nieuw.py`, met de volgende inhoud:"),
+                 Code(nieuw),
+                 Text("Add en commit dit bestand (`git add nieuw.py`, `git commit -m \"Message\"`).")
+                 ],
                   "done": check_file("nieuw.py", nieuw),
                  },
-             5: { "text": [Text("Tof! We hebben onze nieuwe code veiliggesteld, nu nog naar GitHub doorzetten. Maar dan... Als we nu `git push` proberen gaat het mis :-/"), Image("5_BasicMergeError.png") , Text("Als we `git fetch` doen zien we dat we twee parallelle lijnen hebben gemaakt. Oeps. Geeft niet, kan gebeuren. Dus, hoe verder?"), Text("Helaas, `git merge --ff-only` doet het niet. Dit keer kunnen we niet gewoon doorspoelen, maar zullen we de veranderingen moeten samenvoegen. Dit kan met `git merge origin/main`."), Text("Bij het mergen wordt een nieuwe commit gemaakt. Je krijgt de mogelijkheid om hier een message voor te schrijven, maar in dit geval moeten we gewoon de standaard-tekst aanhouden.")],
+             5: { "text": [
+                 Text("Tof! We hebben onze nieuwe code veiliggesteld, nu nog naar GitHub doorzetten. Maar dan... Als we nu `git push` proberen gaat het mis :-/"),
+                 Image("5_BasicMergeError.png"),
+                 Text("Als we `git fetch` doen zien we dat we twee parallelle lijnen hebben gemaakt. Oeps. Geeft niet, kan gebeuren. Dus, hoe verder?"),
+                 Text("Helaas, `git merge --ff-only` doet het niet. Dit keer kunnen we niet gewoon doorspoelen, maar zullen we de veranderingen moeten samenvoegen."),
+                 Text("Dit kan met `git merge origin/main`."),
+                 Sidenote("Bij het mergen wordt een nieuwe commit gemaakt. Je krijgt de mogelijkheid om hier een message voor te schrijven, maar in dit geval moeten we gewoon de standaard-tekst aanhouden.")
+                 ],
                   "done": check_heads(main="Merge remote-tracking branch"),
                  },
-             6: { "text": [Text("In dit geval kan git de twee verschillende commits veilig samenvoegen, omdat we in losse bestanden hebben gewerkt. We gaan nog een keertje back in time, en dit keer maken er echt een fubar van...")],
+             6: { "text": [
+                 Text("In dit geval kan git de twee verschillende commits veilig samenvoegen, omdat we in losse bestanden hebben gewerkt."),
+                 Text("We gaan nog een keertje back in time, en dit keer maken er echt een fubar van..."),
+                 Image("6_conflict.png"),
+                 ],
                   "done": check_heads(main="Internationalisatie", remote="Internationalisatie"),
                   "post": nieuw_branch
                  },
-             7: { "text": [Text("We maken wederom wat aanpassingen, maar nu dwars door het bestand `project.py` heen. Open het bestand, en pas het als volgt aan:"), Code(aangepast), Text("Wederom doen we een `git add` en `git commit` voordat we verder kunnen.")],
+             7: { "text": [
+                 Heading("Manual Merging"),
+                 Text("We maken wederom wat aanpassingen, maar nu dwars door het bestand `project.py` heen. Open het bestand, en pas het als volgt aan:"),
+                 Code(aangepast),
+                 Text("Wederom doen we een `git add` en `git commit` voordat we verder kunnen.")
+                 ],
                   "done": check_file("project.py", aangepast),
                  },
-             8: { "text": [Text("Cool. Laten we kijken wat er nu gebeurt. Je kan proberen te pushen, maar ook nu weer krijgen we de opdracht om eerst de remote changes te mergen. Sure."), Text("`git fetch`, geen verrassingen, maar dan... `git merge`, kan het niet meer voor ons oplossen."), Text("We moeten een handmatige merge doen, waarbij we (in PyCharm) de beide versies aan twee kanten hebben met een compromis die we in het midden moeten samenstellen."), Image("8_Conflict1.png", "8_Conflict2.png"), Text("Als dat gelukt is kunnen we de gemergde file opnieuwe met `git add` toevoegen, een merge commit maken (gebruik wederom de standaard naam voor nu), en dan pas mogen we pushen.")],
+             8: { "text": [
+                 Text("Cool. Laten we kijken wat er nu gebeurt. Je kan proberen te pushen, maar ook nu weer krijgen we de opdracht om eerst de remote changes te mergen. Sure."),
+                 Text("`git fetch`, geen verrassingen, maar dan... `git merge`, kan het niet meer voor ons oplossen."), Text("We moeten een handmatige merge doen, waarbij we (in PyCharm) de beide versies aan twee kanten hebben met een compromis die we in het midden moeten samenstellen."),
+                 Image("8_Conflict1.png", "8_Conflict2.png"),
+                 Text("Als dat gelukt is kunnen we de gemergde file opnieuwe met `git add` toevoegen, een merge commit maken (gebruik wederom de standaard naam voor nu), en dan pas mogen we pushen.")
+                 ],
                   "done": check_heads(main="Merge remote-tracking branch"),
                   "post": manual_merge_branch
                  },
-             9: { "text": [Text("Dat is ook gelukt. Je kunt nu veilig pushen als je wilt. De laatste individuele oefening gaan we nog een merge uitvoeren, die als het goed is weer automatisch kan."), Text("Wat er wel nieuw aan is, is dat we nu een tweede branch hebben in plaats van nieuwe aanpassingen op GitHub."), Text("Remember the timeline waarin we `nieuw.py` hebben gemaakt en gemerged? Die is niet echt kwijt, maar stiekem opgeslagen als een aparte branch genaamd `nieuw`.")],
+             9: { "text": [
+                 Text("Dat is ook gelukt. Je kunt nu veilig pushen als je wilt. De laatste individuele oefening gaan we nog een merge uitvoeren, die als het goed is weer automatisch kan."),
+                 Text("Wat er wel nieuw aan is, is dat we nu een tweede branch hebben in plaats van nieuwe aanpassingen op GitHub."),
+                 Text("Remember the timeline waarin we `nieuw.py` hebben gemaakt en gemerged? Die is niet echt kwijt, maar stiekem opgeslagen als een aparte branch genaamd `nieuw`.")
+                 ],
                   "post": next,
                  },
-             10: { "text": [Text("Branches zijn splitsingen die met opzet gemaakt zijn, om verschillende aanpassingen los van elkaar uit te kunnen voeren. Meestal wordt dit gebruikt voor verschillende features waar mensen parallel aan werken."), Image("9_goose.png"), Text("Deze bestaan langere tijd naast elkaar en worden, en kunnen gemerged worden zodra de feature 'af' is."), Text("Soms worden hier nog tussenstappen gebruikt, en heb je bijvoorbeeld branches voor features in ontwikkeling, een branch waarin de code samengevoegd en getest wordt, en een branch waar allen goed geteste code op komt te staan.")],
+             10: { "text": [
+                 Heading("Branches"),
+                 Text("Branches zijn splitsingen die met opzet gemaakt zijn, om verschillende aanpassingen los van elkaar uit te kunnen voeren."),
+                 Text("Meestal wordt dit gebruikt voor verschillende features waar mensen parallel aan werken."),
+                 Text("Deze bestaan langere tijd naast elkaar en worden, en kunnen gemerged worden zodra de feature 'af' is."),
+                 Image("9_goose.png"),
+                 Sidenote("Soms worden nog extra branches als tussenstappen gebruikt. Een gangbare werkvorm is:"),
+                 Sidenote("- Een branch per feature of bugfix die in ontwikkeling is,"),
+                 Sidenote("- Een development branch waarin de code samengevoegd en getest wordt en"),
+                 Sidenote("- De main branch mag dan alleen goed geteste code en geintegreerde code op komt te staan."),
+                 Text("Jullie kunnen zelf als projectgroep kiezen hoe ver je hier in gaat. We adviseren om in ieder geval iedereen een eigen branch te geven.")
+                 ],
                   "post": next,
                  },
-             11: { "text": [Text("Nu houden we het simpel, en hebben we twee 'features' waarvan er een al op de main staat."), Text("De `check_antwoord`-feature is al op main geintegreerd, maar de eerder gemaakte tweede module (`nieuw.py`) mist nog."), Text("Je kan op dit punt `git checkout` gebruiken om van branch te wisselen, bijvoorbeeld met `git checkout nieuw` om de code op deze branch te bekijken."), Text("Probeer dat en ga daarna met `git checkout main` weer terug naar de main-branch."), Text("Doe nu `git merge nieuw` om de beide tijdlijnen weer samen te voegen, en push het resultaat naar GitHub."), Text("Dit samenvoegen (en het beheren van de Git en de kwaliteit van de code daarop) kan in veel teams een speciale rol zijn.")],
+             11: { "text": [
+                 Text("Nu houden we het simpel, en hebben we twee 'features' waarvan er een al op de main staat."),
+                 Text("De `check_antwoord`-feature is al op main geintegreerd, maar de eerder gemaakte tweede module (`nieuw.py`) mist nog."),
+                 Text("Je kan op dit punt `git checkout` gebruiken om van branch te wisselen, bijvoorbeeld met `git checkout nieuw` om de code op deze branch te bekijken."),
+                 Text("Probeer dat en ga daarna met `git checkout main` weer terug naar de main-branch."),
+                 Text("Doe nu `git merge nieuw` om de beide tijdlijnen weer samen te voegen, en push het resultaat naar GitHub."),
+                 Text("Dit samenvoegen (en het beheren van de Git en de kwaliteit van de code daarop) kan in veel teams een speciale rol zijn.")
+                 ],
                   "done": check_heads(main="Merge branch 'nieuw'"),
                  },
-             12: { "text": [Text("Je bent klaar met het individuele deel van deze tutorial. Wacht op de rest van je groepje, of kijk of kan helpen als iemand moeite heeft. Nog een paar tips:") ,Text("- We hebben nu steeds `git fetch` en `git merge` in twee stappen gedaan. Dit is (zeker om het te leren) fijn, zodat je alle stappen kan zien en niet door de merge verrast wordt. In de praktijk worden deze stappen zo vaak na elkaar gebruikt, dat dit ook in 1 keer kan met een `git pull`.") ,Text("- Je kan `git checkout` niet alleen voor branches gebruiken, maar voor iedere commit. Dit kan handig zijn om even terug te gaan naar een oude versie") ,Text("- Je kan zelf branches aanmaken met `git branch NAAM` of `git checkout -b NAAM` - die laatste zorgt dat je ook meteen op de nieuwe branch verder gaat. Met `git branch` kan je alle branches bekijken. Voor deze repo is er nog een `setup` branch, met instructies voor docenten die dit met hun klas willen doen, en `demo_code` die alleen geschiedenis van `project.py` bevat zonder deze tutorial.") ,Text("- In plaats van wachten op je groepsgenoten kun je ook de Oh-My-Git game downloaden (https://blinry.itch.io/oh-my-git) om te oefenen of nieuwe dingen te leren. Je hoort het goed, docent zegt 'ga maar gamen'. It's a trap?")],
+             12: { "text": [
+                 Heading("A winner is you!"),
+                 Text("Je bent klaar met het individuele deel van deze tutorial. Wacht op de rest van je groepje, of kijk of kan helpen als iemand moeite heeft. Nog een paar tips:"),
+                 Text("- We hebben nu steeds `git fetch` en `git merge` in twee stappen gedaan. Dit is (zeker om het te leren) fijn, zodat je alle stappen kan zien en niet door de merge verrast wordt."),
+                 Text("  In de praktijk worden deze stappen zo vaak na elkaar gebruikt, dat dit ook in 1 keer kan met een `git pull`."),
+                 Text("- Je kan `git checkout` niet alleen voor branches gebruiken, maar voor iedere commit. Dit kan handig zijn om even terug te gaan naar een oude versie"),
+                 Text("- Je kan zelf branches aanmaken met `git branch NAAM` of `git checkout -b NAAM` - die laatste zorgt dat je ook meteen op de nieuwe branch verder gaat. Met `git branch` kan je alle branches bekijken."),
+                 Text("   Voor deze repo is er nog een `setup` branch, met instructies voor docenten die dit met hun klas willen doen, en `demo_code` die alleen geschiedenis van `project.py` bevat zonder deze tutorial."),
+                 Text("- In plaats van wachten op je groepsgenoten kun je ook de Oh-My-Git game downloaden (https://blinry.itch.io/oh-my-git) om te oefenen of nieuwe dingen te leren."),
+                 Text("   Je hoort het goed, docent zegt 'ga maar gamen'."),
+                 Image("12_omg.png", "12_trap.png"),
+                 ],
                   "done": lambda: False, # No further steps
                  },
        }
@@ -214,5 +297,25 @@ def exercise(n):
             if "post" in exercises[n]:
                 exercises[n]["post"]()
 
+def debug(n, stop=12):
+    for line in exercises[n]["text"]:
+        line.print()
+
+    layout = [t.show() for t in exercises[n]["text"]]
+    layout += [[sg.Button("Klaar?")]]
+
+    window = sg.Window('PySimpleGUI', layout)
+
+    event = 0
+    while event != sg.WIN_CLOSED and event != "Klaar?":  # Event Loop
+        event, values = window.read()
+
+    if n < stop:
+        debug(n+1)
+
+
 if __name__ == "__main__":
-    exercise(get_state())
+    if len(argv) > 2:
+        debug(int(argv[1]), int(argv[2]))
+    else:
+        exercise(get_state())
