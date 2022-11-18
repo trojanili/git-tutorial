@@ -57,7 +57,6 @@ def get_state():
     try:
         with open(".state", "r") as file:
             state = file.read()
-            print("DEBUG", "get_state", state)
             if state.strip().lower == "reset":
                 reset()
             if state.strip().isnumeric():
