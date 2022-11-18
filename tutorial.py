@@ -11,7 +11,7 @@ class Image:
         self.path = filename
 
     def print(self):
-        pass
+        print("\n(IMAGE)\n")
 
     def show(self):
         return [sg.Image("images/" + p) for p in self.path]
@@ -274,6 +274,9 @@ exercises = { 0: { "text": [Text("Welkom! In deze tutorial gaan we leren hoe we 
                  Text("- In plaats van wachten op je groepsgenoten kun je ook de Oh-My-Git game downloaden (https://blinry.itch.io/oh-my-git) om te oefenen of nieuwe dingen te leren."),
                  Text("   Je hoort het goed, docent zegt 'ga maar gamen'."),
                  Image("12_omg.png", "12_trap.png"),
+                 Text(""),
+                 Text("- Zodra je team klaar is: maak een fork van https://github.com/hu-ict-projb/git-20-questions, neem de README en historie door, en speel met je team 20 Questions. "),
+                 Text(""),
                  ],
                   "done": lambda: False, # No further steps
                  },
