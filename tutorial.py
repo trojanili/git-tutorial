@@ -45,13 +45,6 @@ class Code(str):
         return [[sg.Text(self, font=("Courier 12"))],
                 [Sidenote("De code is ook in de output te vinden, om makkelijker te copy-pasten.").show()]]
 
-def reset(): # TODO
-    # fetch
-    # delete branches
-    # hard reset main to origin/main
-    put_state(0)
-    exit(0)
-
 
 def get_state():
     try:
@@ -154,7 +147,14 @@ def check_file(filename, should_be):
 def rewind():
     travel("step_back")
 
-exercises = { 0: { "text": [Text("Welkom! In deze tutorial gaan we leren hoe we Git kunnen gebruiken om met meerdere mensen samen te werken.")],
+exercises = { 0: { "text": [
+                  Text("Welkom! In deze tutorial gaan we leren hoe we Git kunnen gebruiken om met meerdere mensen samen te werken."),
+                  Text("Voordat we beginnen, een paar tips:"),
+                  Text("- Je moet na iedere stap het script `tutorial.py` opnieuw uitvoeren."),
+                  Text("  - Als alles goed is gegaan krijg je een nieuwe instructie, zo niet blijft de oude terugkomen."),
+                  Text("- Lees goed wat er staat, en vraag om hulp als je er niet uitkomt."),
+                  Text("- Het doel is uiteindelijk om hier comfortabel mee te worden, dus experimenteren is ok. In het ergste geval resetten we gewoon.")
+                  ],
                    "done": check_heads(main="Internationalisatie", remote="Internationalisatie"),
                    "post": rewind
                  },
@@ -198,10 +198,11 @@ exercises = { 0: { "text": [Text("Welkom! In deze tutorial gaan we leren hoe we 
                  },
              5: { "text": [
                  Text("Tof! We hebben onze nieuwe code veiliggesteld, nu nog naar GitHub doorzetten. Maar dan... Als we nu proberen te Pushen gaat het mis :-/"),
-                 Image("5_BasicMergeError.png"),
+                 Image("5_BasicMergeError.png", "5_Split.png"),
                  Text("Als we een Fetch doen zien we dat we twee parallelle lijnen hebben gemaakt. Oeps. Geeft niet, kan gebeuren. Dus, hoe verder?"),
                  Text("Helaas, de fast forward doet het niet. Dit keer kunnen we niet gewoon doorspoelen, maar zullen we de veranderingen moeten samenvoegen."),
                  Text("Dit kan met het Merge menu item, of het commando `git merge origin/main`."),
+                 Image("5_Merge.png", "5_MergeWhat.png"),
                  Sidenote("Bij het mergen wordt een nieuwe commit gemaakt. Je krijgt de mogelijkheid om hier een message voor te schrijven, maar in dit geval moeten we gewoon de standaard-tekst aanhouden.")
                  ],
                   "done": check_heads(main="Merge remote-tracking branch"),
@@ -210,6 +211,7 @@ exercises = { 0: { "text": [Text("Welkom! In deze tutorial gaan we leren hoe we 
                  Text("In dit geval kan git de twee verschillende commits veilig samenvoegen, omdat we in losse bestanden hebben gewerkt."),
                  Text("We gaan nog een keertje back in time, en dit keer maken er echt een fubar van..."),
                  Image("6_conflict.png"),
+                 Text("Het resultaat van de vorige stap is niet helemaal verwijderd, maar staat nog in je timeline onder het label `nieuw`. Negeer deze aftakking voor nu even."),
                  ],
                   "done": check_heads(main="Internationalisatie", remote="Internationalisatie"),
                   "post": nieuw_branch
@@ -218,14 +220,18 @@ exercises = { 0: { "text": [Text("Welkom! In deze tutorial gaan we leren hoe we 
                  Heading("Manual Merging"),
                  Text("We maken wederom wat aanpassingen, maar nu dwars door het bestand `project.py` heen. Open het bestand, en pas het als volgt aan:"),
                  Code(aangepast),
-                 Text("Wederom doen we een add en commit voordat we verder kunnen.")
+                 Text("Wederom doen we een add en commit voordat we verder kunnen. ")
                  ],
                   "done": check_file("project.py", aangepast),
                  },
              8: { "text": [
+                 Text("Na de commit heb je de nieuwe commit (`main`) en Internationalisatie (`origin/main`), de `nieuw` branch is voor later."),
+                 Text("Na de fetch staat `origin/main` op Test Code, de andere twee commits staan nog steeds in time-out."),
+                 Image("8_Status.png"),
                  Text("Cool. Laten we kijken wat er nu gebeurt. Je kan proberen te pushen, maar ook nu weer krijgen we de opdracht om eerst de remote changes te mergen. Sure."),
-                 Text("Fetch, geen verrassingen, maar dan... Merge, kan het niet meer voor ons oplossen."),
-                 Text("We moeten een handmatige merge doen, waarbij we (in PyCharm) de beide versies aan twee kanten hebben met een compromis die we in het midden moeten samenstellen."),
+                 Text("Fetch, geen verrassingen, maar dan... De automatische merge kan het niet meer voor ons oplossen. We moeten een handmatige merge doen."),
+                 Text("Kies in het linkerscherm hieronder voor Merge, niet voor voor Accept Ours of Theirs."),
+                 Text("We krijgen nu in PyCharm de beide versies aan twee kanten met een compromis die we in het midden moeten samenstellen."),
                  Image("8_Conflict1.png", "8_Conflict2.png"),
                  Text("Als dat gelukt is kunnen we de gemergde file opnieuwe met `git add` toevoegen, een merge commit maken (gebruik wederom de standaard naam voor nu), en dan pas mogen we pushen.")
                  ],
