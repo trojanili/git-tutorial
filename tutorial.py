@@ -7,12 +7,14 @@ try:
     import PySimpleGUI as sg
 except ImportError:
     print("Je mist libraries! Zorg dat je GitPython en PySimpleGui installeert (via PyCharm of `pip`")
+    exit(-1)
 
 try:
     with Repo(".") as repo:
         main = repo.heads.main
 except Exception:
     print("De library kan je Git executable niet vinden. Pas de run configuration in PyCharm aan, zodat de environment-variabele `GIT_PYTHON_GIT_EXECUTABLE` naar `git.exe` verwijst. Waarschijnlijk bevindt dit programma zich op `\\Program Files\\Git\\bin\\git.exe`.")
+    exit(-1)
 
 sg.theme('DarkGrey13')
 
