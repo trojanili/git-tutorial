@@ -80,15 +80,28 @@ def next():
     put_state(n+1)
     exercise(n+1)
 
+def save_last_commit():
+    with open(".git/refs/heads/main", "r") as infile:
+        with open(".last_commit", "w") as outfile:
+            outfile.write(infile.read())
+
+def restore_last_commit():
+    with open(".last_commit", "r") as infile:
+        with open(".git/refs/remotes/origin/main", "w") as outfile:
+            outfile.write(infile.read())
+
+def hide_last_commit():
+    with open(".git/refs/heads/main", "r") as infile:
+        with open(".git/refs/remotes/origin/main", "w") as outfile:
+            outfile.write(infile.read())
+
 def travel(commit):
     with Repo(".") as repo:
         main = repo.heads.main
         main.commit = commit
         repo.head.reference = main
         repo.head.reset(index=True, working_tree=True)
-    with open(".git/refs/heads/main", "r") as infile:
-        with open(".git/refs/remotes/origin/main", "w") as outfile:
-            outfile.write(infile.read())
+    hide_last_commit()
 
 def keep(bname):
     with Repo(".") as repo:
@@ -144,12 +157,16 @@ def check_heads(main=None, remote=None):
 
 def check_conflict(filename):
     def inner():
+        restore_last_commit()
         try:
             IndexFile.from_tree(repo, "step_back", "HEAD", "origin/main", trivial=True)
         except:
-            return True
+            manual_merge = True
         else:
-            return False
+            manual_merge = False
+        finally:
+            hide_last_commit()
+        return manual_merge
     return inner
 
 def check_file(filename, should_be):
@@ -167,6 +184,10 @@ def check_file(filename, should_be):
 def rewind():
     travel("step_back")
 
+def setup():
+    save_last_commit()
+    rewind()
+
 exercises = { 0: { "text": [
                   Text("Welkom! In deze tutorial gaan we leren hoe we Git kunnen gebruiken om met meerdere mensen samen te werken."),
                   Text("Voordat we beginnen, een paar tips:"),
@@ -176,7 +197,7 @@ exercises = { 0: { "text": [
                   Text("- Het doel is uiteindelijk om hier comfortabel mee te worden, dus experimenteren is ok. In het ergste geval resetten we gewoon.")
                   ],
                    "done": check_heads(main="Internationalisatie", remote="Internationalisatie"),
-                   "post": rewind
+                   "post": setup
                  },
              1: { "text": [
                  Heading("Fetch"),
