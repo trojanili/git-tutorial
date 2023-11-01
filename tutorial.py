@@ -3,7 +3,7 @@
 from sys import argv
 
 try:
-    from git import Repo
+    from git import Repo, IndexFile
     import PySimpleGUI as sg
 except ImportError:
     print("Je mist libraries! Zorg dat je GitPython en PySimpleGui installeert (via PyCharm of `pip`")
@@ -142,6 +142,16 @@ def check_heads(main=None, remote=None):
             return result
     return inner
 
+def check_conflict(filename):
+    def inner():
+        try:
+            IndexFile.from_tree(repo, "step_back", "HEAD", "origin/main", trivial=True)
+        except:
+            return True
+        else:
+            return False
+    return inner
+
 def check_file(filename, should_be):
     def inner():
         try:
@@ -232,7 +242,7 @@ exercises = { 0: { "text": [
                  Code(aangepast),
                  Text("Wederom doen we een add en commit voordat we verder kunnen. ")
                  ],
-                  "done": check_file("project.py", aangepast),
+                  "done": check_conflict("project.py"),
                  },
              8: { "text": [
                  Text("Na de commit heb je de nieuwe commit (`main`) en Internationalisatie (`origin/main`), de `nieuw` branch is voor later."),
