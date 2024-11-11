@@ -9,7 +9,7 @@ fi
 git checkout code
 
 # Commit and push changes to tutorial.py, using supplied commit message.
-git add tutorial.py
+git add tutorial.py requirements.txt README.md update.sh
 git commit -m "$1"
 git push origin code
 
