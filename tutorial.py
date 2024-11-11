@@ -3,10 +3,12 @@
 from sys import argv
 
 try:
+    import os
+    os.environ["GIT_PYTHON_GIT_EXECUTABLE"] = "C:/Program Files/Git/cmd/git.exe"
     from git import Repo, IndexFile
-    import PySimpleGUI as sg
+    import FreeSimpleGUI as sg
 except ImportError:
-    print("Je mist libraries! Zorg dat je GitPython en PySimpleGui installeert (via PyCharm of `pip`")
+    print("Je mist libraries! Zorg dat je GitPython en PySimpleGui installeert (via PyCharm of `pip`). Ook kan het zijn dat je het pad naar de Git executable moet aanpassen.")
     exit(-1)
 
 try:
